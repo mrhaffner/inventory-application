@@ -14,6 +14,6 @@ var ItemSchema = new Schema(
 
 ItemSchema
 .virtual('url')
-.get(() => `/category/item/${this._id}`); //maybe change to something else
+.get(() => `/inventory/item/${this._id}`); //maybe change to something else
 
 module.exports = mongoose.model('Item', ItemSchema)
