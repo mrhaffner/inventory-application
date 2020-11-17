@@ -5,15 +5,21 @@ const async = require('async');
 
 exports.index = (req, res) => {
     async.parallel({
-        item_count: (callback) => Item.countDocuments({}, callback),
+        item_count: (callback) => Item.countDocuments({}, callback), //might not need this counting crap if I'm not using it
         category_count: (callback) => Category.countDocuments({}, callback)
-    }, (err, results) => res.render('index', { title: 'Inventory Home', error: err, data: results})
+    }, (err, results) => res.render('index', { title: 'Inventory Home', error: err, data: results}) 
     );
 };
 
 // Display list of all items.
 exports.item_list = (req, res) => {
-    res.send('NOT IMPLEMENTED: item list');
+    
+    Item.find({}, 'name category') //this correct?
+        .populate('category') //this correct?
+        .exec((err, list_items) => {
+            if (err) { return next(err); }
+            res.render('item_list', { title: 'Item List', item_list: list_items})
+        })
 };
 
 // Display detail page for a specific item.
