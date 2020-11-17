@@ -1,0 +1,1 @@
+This is for the Inventory Application assignment from The Odin Project.  The purpose of this assignment is to gain expreience using ExpressJS and MongoDB/Mongoose.
