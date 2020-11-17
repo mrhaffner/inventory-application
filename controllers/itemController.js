@@ -17,7 +17,7 @@ exports.item_list = (req, res) => {
     Item.find({}, 'name category') //this correct?
         .populate('category') //this correct?
         .exec((err, list_items) => {
-            if (err) { return next(err); }
+            if (err) { return next(err); } //probably can be decomposed or whatever the word is
             res.render('item_list', { title: 'Item List', item_list: list_items})
         })
 };
