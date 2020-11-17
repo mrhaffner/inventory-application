@@ -1,8 +1,8 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 
-var CategorySchema = new Schema(
+const CategorySchema = new Schema(
     {
         name: {type: String, required: true}, //add minlength, maxlength? etc?
         description:  {type: String, required: true},
@@ -11,6 +11,7 @@ var CategorySchema = new Schema(
 
 CategorySchema
 .virtual('url')
-.get(() => `/inventory/category/${this._id}`); //maybe change to something else
+.get(function() {
+    return `/inventory/category/${this._id}`}); //maybe change to something else
 
 module.exports = mongoose.model('Category', CategorySchema)
