@@ -5,7 +5,7 @@ var Schema = mongoose.Schema;
 var ItemSchema = new Schema(
     {
         name: {type: String, required: true}, //add minlength, maxlength? etc?
-        descirption:  {type: String, required: true},
+        description:  {type: String, required: true},
         category: {type: Schema.Types.ObjectId, ref: 'Category'}, //, required: true ??????
         price: {type: Number, rquired: true}, //??
         stock: {type: Number, rquired: true}, //??
