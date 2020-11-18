@@ -18,7 +18,7 @@ exports.index = function(req, res) {
 };
 
 // Display list of all items.
-exports.item_list = function(req, res) {
+exports.item_list = function(req, res, next) {
     
     Item.find({}, 'name category') //this correct?
         .populate('category') //this correct?
@@ -29,8 +29,19 @@ exports.item_list = function(req, res) {
 };
 
 // Display detail page for a specific item.
-exports.item_detail = function(req, res) {
-    res.send('NOT IMPLEMENTED: item detail: ' + req.params.id);
+exports.item_detail = function(req, res, next) {
+
+    Item.findById(req.params.id)
+    .populate('category')
+    .exec(function(err, item) {
+        if (err) { return next(err); }
+        if (item==null) {
+            const err = new Error('Item not found');
+            err.status = 404;
+            return next(err);
+        }
+        res.render('item_detail', { item: item } );
+    })
 };
 
 // Display item create form on GET.
