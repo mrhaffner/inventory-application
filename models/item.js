@@ -7,8 +7,8 @@ var ItemSchema = new Schema(
         name: {type: String, required: true}, //add minlength, maxlength? etc?
         description: {type: String, required: true},
         category: {type: Schema.Types.ObjectId, ref: 'Category'}, //, required: true ??????
-        price: {type: Number, rquired: true}, //??
-        stock: {type: Number, rquired: true}, //??
+        price: {type: Number, required: true}, //??
+        stock: {type: Number, required: true}, //??
     }
 );
 

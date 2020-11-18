@@ -1,3 +1,4 @@
+const { body,validationResult } = require('express-validator');
 const Item = require('../models/item');
 const Category = require('../models/category');
 
@@ -45,14 +46,59 @@ exports.item_detail = function(req, res, next) {
 };
 
 // Display item create form on GET.
-exports.item_create_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: item create GET');
+exports.item_create_get = function(req, res, next) {
+    Category.find({}, 'name')
+    .exec(function(err, categories) {
+        if (err) {return next(err)}
+        res.render('item_form', { title: 'Create Item', category_list: categories } )
+    })
 };
 
 // Handle item create on POST.
-exports.item_create_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: item create POST');
-};
+exports.item_create_post = [
+
+    // Validate and sanitise fields.
+    body('category', 'Category must be specified').trim().isLength({ min: 1 }).escape(),
+    body('name', 'Name must be specified').trim().isLength({ min: 1 }).escape(),
+    body('description', 'Description must be specified').trim().isLength({ min: 1 }).escape(),
+    body('price', 'Price must be specified').trim().isLength({ min: 1 }).escape(),
+    body('stock', 'Stock must be specified').trim().isLength({ min: 1 }).escape(),
+    
+    // Process request after validation and sanitization.
+    (req, res, next) => {
+
+        // Extract the validation errors from a request.
+        const errors = validationResult(req);
+
+        // Create a item object with escaped and trimmed data.
+        const item = new Item(
+          { category: req.body.category,
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            stock: req.body.stock
+           });
+
+        if (!errors.isEmpty()) {
+            // There are errors. Render form again with sanitized values and error messages.
+            Category.find({},'name')
+                .exec(function (err, categories) {
+                    if (err) { return next(err); }
+                    // Successful, so render.
+                    res.render('item_form', { title: 'Create item', item_list: categories, selected_item: item.category._id , errors: errors.array(), item: item });
+            });
+            return;
+        }
+        else {
+            // Data from form is valid.
+            item.save(function (err) {
+                if (err) { return next(err); }
+                   // Successful - redirect to new record.
+                   res.redirect(item.url);
+                });
+        }
+    }
+];
 
 // Display item delete form on GET.
 exports.item_delete_get = function(req, res) {
