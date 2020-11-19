@@ -7,12 +7,16 @@ const logger = require('morgan');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const inventoryRouter = require('./routes/inventory');
+const compression = require('compression');
+const helmet = require('helmet');
 
 const app = express();
+app.use(helmet());
 
 //Set up mongoose connection
 const mongoose = require('mongoose');
-const mongoDB = 'mongodb+srv://matt:mooseman@cluster0.zgucq.mongodb.net/inventory-application?retryWrites=true&w=majority';
+const dev_db_url = 'mongodb+srv://matt:mooseman@cluster0.zgucq.mongodb.net/inventory-application?retryWrites=true&w=majority';
+const mongoDB = process.env.MONGODB_URI || dev_db_url;
 mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true});
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -25,6 +29,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(compression()); //Compress all routes
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
