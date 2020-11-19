@@ -8,3 +8,7 @@ block content
     p  #[strong Stock:] #{item.stock}
     p  #[strong Category:] 
         a(href=item.category.url) #{item.category.name}
+
+    hr
+    p
+        a(href=item.url+'/delete') Delete Item
