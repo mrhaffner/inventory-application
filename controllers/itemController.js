@@ -122,11 +122,67 @@ exports.item_delete_post = function(req, res, next) {
 };
 
 // Display item update form on GET.
-exports.item_update_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: item update GET');
+exports.item_update_get = function(req, res, next) {
+    async.parallel({
+        item: function(callback) {
+            Item.findById(req.params.id).populate('category').exec(callback)
+        },
+        categories: function(callback) {
+            Category.find(callback)
+        },
+    }, function(err, results) {
+        if (err) { return next(err); }
+        if (results.item==null) {
+            const err = new Error('Item not found');
+            err.status = 404;
+            return next(err);
+        }
+        res.render('item_form', {title: 'Update Item', category_list: results.categories, selected_category: results.item.category._id, item: results.item });
+    });
 };
 
 // Handle item update on POST.
-exports.item_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: item update POST');
-};
+exports.item_update_post = [
+
+    // Validate and sanitise fields.
+    body('category', 'Category must be specified').trim().isLength({ min: 1 }).escape(),
+    body('name', 'Name must be specified').trim().isLength({ min: 1 }).escape(),
+    body('description', 'Description must be specified').trim().isLength({ min: 1 }).escape(),
+    body('price', 'Price must be specified').trim().isLength({ min: 1 }).escape(),
+    body('stock', 'Stock must be specified').trim().isLength({ min: 1 }).escape(),
+    
+    // Process request after validation and sanitization.
+    (req, res, next) => {
+
+        // Extract the validation errors from a request.
+        const errors = validationResult(req);
+
+        // Create a item object with escaped and trimmed data.
+        const item = new Item(
+          { category: req.body.category,
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            stock: req.body.stock,
+            _id: req.params.id
+           });
+
+        if (!errors.isEmpty()) {
+            // There are errors. Render form again with sanitized values and error messages.
+            Category.find({},'name')
+                .exec(function (err, categories) {
+                    if (err) { return next(err); }
+                    // Successful, so render.
+                    res.render('item_form', { title: 'Update item', item_list: categories, selected_item: item.category._id , errors: errors.array(), item: item });
+            });
+            return;
+        }
+        else {
+            // Data from form is valid.
+            Item.findByIdAndUpdate(req.params.id, item, {}, function (err, item) {
+                if (err) { return next(err); }
+                   res.redirect(item.url);
+                });
+        }
+    }
+];
